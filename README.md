@@ -64,13 +64,32 @@ Response is simply a response containing the entire body with some headers added
 
 |Header|Meaning|
 |------|-------|
-|NRT-HostName|Added to request messages to help construct the request in the server|
-|NRT-Method|The HTTP method added to request messages to help construct the request in the server|
-|NRT-Path|The HTTP request path added to request messages to help construct the request in the server|
 |NRT-ID|A unique request ID set by the server|
 |NRT-Connected-Server|The NATS server the microservice was connected to|
 |NRT-Client|The Client ID of the server connection|
 |NRT-Connected-Cluster|The cluster the server is connected to if clustered|
+
+### Configuration ?
+
+Several environment variables influence the behavior of the transport:
+
+## Configuring
+
+Configuration is via environment variables, below table details all environment variables:
+
+|Variable|Description|
+|--------|-----------|
+|NATS_CONTEXT|A context to use as made by the `nats context save` command, see `NATS_ENV`|
+|NATS_ENV|Set to `true` when no nats context is used, configure using the `NATS_*` variables instead|
+|NATS_URL|Where the nats servers are|
+|NATS_USER|User to connect as, also used as token when password is empty|
+|NATS_PASSWORD|The password to connect with
+|NATS_CREDS|Path to a nats creds file|
+|NATS_NKEY|NKey to authenticate with|
+|NATS_CERT|Path to a x509 certificate|
+|NATS_KEY|Path to a x509 private key|
+|NATS_CA|Path to a x509 certificate authority certificate chain|
+|NATS_PREFIX|A subject to prefix to the hostname, defaults to `nrt`|
 
 ### Contact?
 

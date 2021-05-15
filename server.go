@@ -37,15 +37,14 @@ func (r *NatsRoundTripper) ListenAndServ(ctx context.Context, hostname string, h
 	subject := fmt.Sprintf("%s.requests.%s.*", r.opts.prefix, hostname)
 
 	sub, err := r.opts.conn.QueueSubscribe(subject, "nrt", func(m *nats.Msg) {
-		nrtHostname := m.Header.Get("NRT-HostName")
-		if nrtHostname != hostname {
-			log.Printf("Ignoring request for host %s while serving %s", nrtHostname, hostname)
-			return
-		}
-
 		reqr := bufio.NewReader(bytes.NewBuffer(m.Data))
 		req, err := http.ReadRequest(reqr)
 		if err != nil {
+			return
+		}
+
+		if req.Host != hostname {
+			log.Printf("Ignoring request for host %s while serving %s", req.Host, hostname)
 			return
 		}
 

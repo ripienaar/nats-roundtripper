@@ -16,9 +16,14 @@ type NatsRoundTripper struct {
 func New(opts ...Option) (*NatsRoundTripper, error) {
 	nrt := &NatsRoundTripper{
 		opts: &nrtOpts{
-			prefix:  "nrt",
-			timeout: 30 * time.Second,
+			prefix:      "nrt",
+			timeout:     30 * time.Second,
+			contextName: os.Getenv("NATS_CONTEXT"),
 		},
+	}
+
+	if prefix := os.Getenv("NATS_PREFIX"); prefix != "" {
+		nrt.opts.prefix = prefix
 	}
 
 	for _, opt := range opts {
