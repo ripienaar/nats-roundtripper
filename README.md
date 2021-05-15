@@ -11,7 +11,7 @@ of the benefits of a service mesh with no additional infrastructure.
  * Failover is free with no additional components like load balancers  
  * Geo failover and fallback is free with no additional components like global dns
  * Long running connections are used for microservices speeding up connection handling
- * NATS support canary deploys, gradual deploys and more (planned)
+ * NATS support canary deploys, gradual deploys and more
 
 Moving to NATS as transport for microservices can be a big job, implementing a 
 `http.RoundTripper` means your existing microservices can be hosted on nats with
@@ -51,6 +51,59 @@ body, err := ioutil.ReadAll(resp.Body)
 
 fmt.Print(string(body))
 ```
+
+### Traffic Management
+
+#### Load balancing
+
+Without any additional effort the service will scale horizontally and vertically, simply starting more of the same code will cause the load to be randomly distributed.
+
+#### Geo Failover
+
+If instances of the service is started in multiple NATS Clustered connected into a Super Cluster then connections made in cluster "east" will automatically failover to cluster "west" and fall back to "east" when workers are available.
+
+#### Canary Deploys
+
+When running a service the `NATS_PREFIX` environment variable or the `WithPrefix()` option can adjust the subjects where the service listen.
+
+Here we run the weather service on a `v2` subject:
+
+```
+$ WEATHER_API=your.api.key \
+  HTTP_PORT=8088 \
+  NATS_CONTEXT=weather \
+  NATS_PREFIX=v2 \
+  ./weather
+```
+
+Lets assume we have both a `v1` and `v2` running, and we wish to test 10% of the traffic against `v2`.  Configuring the NATS Server as follows will set this up:
+
+```
+mappings: {
+    nrt.requests.weather.nats.*: [
+        {destination: v1.requests.weather.nats.$1, weight: 90%}
+        {destination: v2.requests.weather.nats.$1, weight: 10%}
+    ]
+}
+```
+
+With this in place 10% of the traffic will be routed to v2 of the microservice. These settings can be adjusted on the fly to migrate traffic onto v2 gradually.
+
+
+#### Fault Injection
+
+Building on the mappings above we can arrange for 10% of the traffic to be lost:
+
+```
+mappings: {
+    nrt.requests.weather.nats.*: [
+        {destination: v1.requests.weather.nats.$1, weight: 90%}
+        {destination: v1.discard.weather.nats.$1, weight: 10%}
+    ]
+}
+```
+
+Here we ensure no services listens on `v1.discard...` and those 10% of traffic will be lost.
 
 ### Design?
 
