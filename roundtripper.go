@@ -11,7 +11,7 @@ import (
 )
 
 func (r *NatsRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	hostname := req.URL.Hostname()
+	hostname := strings.ToLower(req.URL.Hostname())
 	if !strings.HasSuffix(hostname, ".nats") {
 		return nil, fmt.Errorf("invalid hostname, hostnames should end in .nats")
 	}

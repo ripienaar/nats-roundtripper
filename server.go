@@ -28,6 +28,8 @@ func (r *NatsRoundTripper) ListenAndServ(ctx context.Context, hostname string, h
 		handler = http.DefaultServeMux
 	}
 
+	hostname = strings.ToLower(hostname)
+
 	if !strings.HasSuffix(hostname, ".nats") {
 		return fmt.Errorf("invalid hostname, hostnames should end in .nats")
 	}
