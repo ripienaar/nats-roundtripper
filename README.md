@@ -39,11 +39,11 @@ go nats.ListenAndServ(context.Background(), "weather.nats", nil)
 
 The client is a normal HTTP client, see the bundled [nrtget](nrtget)
 
-```
+```go
 t, _ := nrt.New(nrt.WithNatsServer("nats.internal"))
 c := &http.Client{Transport: t}
 
-req, _ := http.NewRequest("GET", "http://weather.nats/city", bytes.NewBuffer([]byte(`{"city":"london"}`))))
+req, _ := http.NewRequest("GET", "https://weather.nats/city", bytes.NewBuffer([]byte(`{"city":"london"}`))))
 resp, _ := c.Do(req)
 
 defer resp.Body.Close()
@@ -124,11 +124,7 @@ Response is simply a response containing the entire body with some headers added
 
 ### Configuration ?
 
-Several environment variables influence the behavior of the transport:
-
-## Configuring
-
-Configuration is via environment variables, below table details all environment variables:
+Several environment variables influence the behavior of the transport, most have matching options to configure the connections:
 
 |Variable|Description|
 |--------|-----------|
