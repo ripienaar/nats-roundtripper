@@ -34,7 +34,7 @@ func (r *NatsRoundTripper) ListenAndServ(ctx context.Context, hostname string, h
 
 	subject := fmt.Sprintf("%s.requests.%s.*", r.opts.prefix, hostname)
 
-	sub, err := r.opts.conn.Subscribe(subject, func(m *nats.Msg) {
+	sub, err := r.opts.conn.QueueSubscribe(subject, "nrt", func(m *nats.Msg) {
 		nrtHostname := m.Header.Get("NRT-HostName")
 		if nrtHostname != hostname {
 			log.Printf("Ignoring request for host %s while serving %s", nrtHostname, hostname)
