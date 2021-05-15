@@ -47,3 +47,14 @@ $ nrtget http://weather.nats/city '{"city":"london"}'
   }
 ]
 ```
+
+## Configuring
+
+Configuration is via environment variables, below table details all environment variables:
+
+|Variable|Description|
+|--------|-----------|
+|WEATHER_API|The API key for the OpenWeather account|
+|HTTP_PORT|Listens on HTTP for connections in addition to nats|
+
+Plus those listed in the main [README](../../README.md)

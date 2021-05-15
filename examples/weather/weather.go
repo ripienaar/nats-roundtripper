@@ -40,12 +40,10 @@ func main() {
 		go http.ListenAndServe(":"+port, nil)
 	}
 
-	nCtx := os.Getenv("NATS_CONTEXT")
-	if nCtx != "" {
-		go nrt.Must(nrt.WithContextNamed(nCtx)).ListenAndServ(context.Background(), "weather.nats", nil)
+	err := nrt.Must().ListenAndServ(context.Background(), "weather.nats", nil)
+	if err != nil {
+		panic(err)
 	}
-
-	<-context.Background().Done()
 }
 
 func cityHandler(w http.ResponseWriter, req *http.Request) {

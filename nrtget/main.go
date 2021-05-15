@@ -29,5 +29,14 @@ func main() {
 	body, err := ioutil.ReadAll(resp.Body)
 	panicIfErr(err)
 
+	if os.Getenv("VERBOSE") != "" {
+		for k, vals := range resp.Header {
+			for _, val := range vals {
+				fmt.Printf("%s: %s\n", k, val)
+			}
+		}
+		fmt.Println()
+	}
+
 	fmt.Print(string(body))
 }
