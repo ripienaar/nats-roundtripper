@@ -13,7 +13,7 @@ of the benefits of a service mesh with no additional infrastructure.
  * Long running connections are used for microservices speeding up connection handling
  * NATS support canary deploys, gradual deploys and more (planned)
 
-Moving to NATS as a transport for microservices can be a big job, implementing a 
+Moving to NATS as transport for microservices can be a big job, implementing a 
 `http.RoundTripper` means your existing microservices can be hosted on nats with
 minimal changes.
 

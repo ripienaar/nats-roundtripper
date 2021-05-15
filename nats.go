@@ -1,6 +1,7 @@
 package nrt
 
 import (
+	"os"
 	"time"
 
 	"github.com/nats-io/jsm.go/natscontext"
@@ -56,8 +57,21 @@ func (r *NatsRoundTripper) connect() error {
 		url  string
 	)
 
-	if r.opts.contextName != "" {
-		nctx, err := natscontext.New(r.opts.contextName, true)
+	// loads the context, if you dont have a context you can set all the connection
+	// options via os environment, set NATS_ENV=true and then supply the variables
+	// NATS_URL, NATS_USER etc
+	envContext := os.Getenv("NATS_ENV") == "true"
+	if r.opts.contextName != "" || envContext {
+		nctx, err := natscontext.New(r.opts.contextName, !envContext,
+			natscontext.WithServerURL(os.Getenv("NATS_URL")),
+			natscontext.WithUser(os.Getenv("NATS_USER")),
+			natscontext.WithPassword(os.Getenv("NATS_PASSWORD")),
+			natscontext.WithCreds(os.Getenv("NATS_CREDS")),
+			natscontext.WithNKey(os.Getenv("NATS_NKEY")),
+			natscontext.WithCertificate(os.Getenv("NATS_CERT")),
+			natscontext.WithKey(os.Getenv("NATS_KEY")),
+			natscontext.WithCA(os.Getenv("NATS_CA")),
+		)
 		if err != nil {
 			return err
 		}
@@ -75,8 +89,6 @@ func (r *NatsRoundTripper) connect() error {
 	if r.opts.natsURL != "" {
 		url = r.opts.natsURL
 	}
-
-	// TODO: error callbacks etc
 
 	r.opts.conn, err = nats.Connect(url, opts...)
 
