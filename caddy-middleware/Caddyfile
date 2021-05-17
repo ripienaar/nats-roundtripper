@@ -1,0 +1,7 @@
+{
+    order nats last
+}
+
+http://:9090 {
+	nats /* weather.nats 
+}
