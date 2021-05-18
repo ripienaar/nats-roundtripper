@@ -2,6 +2,8 @@
 
 This is a Golang `http.RoundTripper` that uses NATS as a transport.
 
+Included is a `http.RoundTripper` for clients, a server that uses normal HTTP Handlers and any existing http handler mux and a Caddy Server transport.
+
 ### Why?
 
 Using NATS as a transport for microservices has a number of advantages, you get a lot
@@ -11,13 +13,18 @@ of the benefits of a service mesh with no additional infrastructure.
  * Failover is free with no additional components like load balancers  
  * Geo failover and fallback is free with no additional components like global dns
  * Long running connections are used for microservices speeding up connection handling
- * NATS support canary deploys, gradual deploys and more
+ * NATS support canary deploys, gradual deploys, traffic shaping or more
+ * NATS, being subject and interest based, does not need any additional infrastructure for service discovery
 
 Moving to NATS as transport for microservices can be a big job, implementing a 
 `http.RoundTripper` means your existing microservices can be hosted on nats with
 minimal changes.
 
+You can see it in action [on YouTube](https://www.youtube.com/watch?v=qZ7fww7_s7A) doing geo failover.
+
 ### Example?
+
+#### Server / Microservice
 
 See the [Weather Service](examples/weather)
 
@@ -37,6 +44,8 @@ go nats.ListenAndServ(context.Background(), "weather.nats", nil)
 <-context.Background().Done()
 ```
 
+#### Client
+
 The client is a normal HTTP client, see the bundled [nrtget](nrtget)
 
 ```go
@@ -51,6 +60,38 @@ body, err := ioutil.ReadAll(resp.Body)
 
 fmt.Print(string(body))
 ```
+
+#### Proxy
+
+I have a Caddy Server 2 extension that you can build using [xcaddy](https://github.com/caddyserver/xcaddy), using this you can bridge
+existing HTTP traffic to a backend managed by NATS.
+
+This extension is just an experiment, the Caddy 2 documentation is non existent so doing the right thing is quite hard. Caddy is really
+attractive though as it's high speed, easy to extend and support many features like Lets Encrypt right out of the box.
+
+You'd look to use something like this to bridge existing traffic to your backend, or to assist with migrating from a current REST based solution to a NATS one.
+
+
+```
+{
+    order nats last
+}
+
+http://:9090 {
+        nats /city weather.nats
+}
+```
+
+Run this using the environment variables listed below like `NATS_CONTEXT` for configuration.
+
+With this in place requests to `http://example.net:9090/city` will be sent to the NATS backend `weather.nats` microservice.
+
+This has a number of advantages:
+
+ * A long-running connection from Caddy to NATS is made significantly reducing the cost overhead of connection management, especially with TLS
+ * Despite being a single long running connection load balancing and geo failover is supported
+ * The connection is self managing and will reconnect automatically, supports NATS topology discovery and will keep working through scale ups and downs of the NATS infrastructure
+ * Massive infrastructure reduction as you don't need any service discovery or LB level configuration to do traffic shaping etc
 
 ### Traffic Management
 

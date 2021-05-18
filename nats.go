@@ -90,6 +90,7 @@ func (r *NatsRoundTripper) connect() error {
 	}
 
 	opts = append(opts, r.opts.connOpts...)
+	opts = append(opts, nats.MaxReconnects(-1))
 
 	if r.opts.natsURL != "" {
 		url = r.opts.natsURL

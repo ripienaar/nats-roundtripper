@@ -3,5 +3,5 @@
 }
 
 http://:9090 {
-	nats /* weather.nats 
+	nats /* weather.nats
 }
